@@ -1,0 +1,25 @@
+{
+  "name": "typescript-api",
+  "version": "1.0.0",
+  "description": "This project fetches a 3-day weather forecast for a specified location using the WeatherAPI service.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "npm run build && node server.cjs",
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Tyrone Martin",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^22.10.10",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
