@@ -14,8 +14,8 @@ header {
 }
 
 img#weather-icon {
-  width: 100%;
-  height: auto;
+  width: auto;
+  height: 100%;
 }
 
 h1 {
