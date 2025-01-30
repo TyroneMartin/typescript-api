@@ -1,13 +1,10 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const LAT: string = process.env.LOCATION_LAT || '';
-const LON: string = process.env.LOCATION_LON || '';
-const APIKEY: string = process.env.WEATHER_API_KEY || '';
-const API_BASE_URL: string = process.env.API_BASE_URL || '';
-const apiWeatherURL: string = `${API_BASE_URL}/weather?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
-const apiForecastURL: string = `${API_BASE_URL}/forecast?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
+// Define global variables
+let LAT: string = '';
+let LON: string = '';
+let APIKEY: string = '';
+let API_BASE_URL: string = '';
+let apiWeatherURL: string = '';
+let apiForecastURL: string = '';
 
 // Define interfaces for weather data structure
 interface WeatherData {
@@ -18,6 +15,26 @@ interface WeatherData {
 interface ForecastItem {
   dt_txt: string;
   weather: { icon: string; description: string }[];
+}
+
+// Initialize configuration
+async function initConfig(): Promise<void> {
+  try {
+    const response = await fetch('/api/config');
+    if (response.ok) {
+      const config = await response.json();
+      LAT = config.LAT;
+      LON = config.LON;
+      APIKEY = config.APIKEY;
+      API_BASE_URL = config.API_BASE_URL;
+      apiWeatherURL = `${API_BASE_URL}/weather?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
+      apiForecastURL = `${API_BASE_URL}/forecast?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
+    } else {
+      throw new Error('Failed to load configuration');
+    }
+  } catch (error) {
+    console.error('Error loading configuration:', error);
+  }
 }
 
 // Function to display current weather
@@ -70,11 +87,12 @@ function displayForecast(forecasts: ForecastItem[]): void {
   const weatherElt = document.querySelector(".forecast");
 
   if (weatherElt) {
+    weatherElt.innerHTML = ''; // Clear existing forecast
     for (let i = 0; i < 3; i++) {
       let newSection = document.createElement("div");
       newSection.innerHTML = `<h3>${dates[i]}</h3> 
-        <p>${forecastDescription[i]}</p>
-        <img id="forecast-icon" src="https://openweathermap.org/img/wn/${forecastIcon[i]}.png" alt="icon image depicting forecast" >`;
+        <p>${forecastDescription[i] || 'No data available'}</p>
+        <img id="forecast-icon" src="https://openweathermap.org/img/wn/${forecastIcon[i] || '01d'}.png" alt="icon image depicting forecast" >`;
       weatherElt.append(newSection);
     }
   } else {
@@ -112,7 +130,7 @@ async function fetchWeather(): Promise<void> {
   }
 }
 
-export function getTheForecast(): void {
-  fetchForecast();
-  fetchWeather();
+export async function getTheForecast(): Promise<void> {
+  await initConfig();
+  await Promise.all([fetchWeather(), fetchForecast()]);
 }

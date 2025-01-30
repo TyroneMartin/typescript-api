@@ -7,14 +7,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import dotenv from 'dotenv';
-dotenv.config();
-const LAT = process.env.LOCATION_LAT || '';
-const LON = process.env.LOCATION_LON || '';
-const APIKEY = process.env.WEATHER_API_KEY || '';
-const API_BASE_URL = process.env.API_BASE_URL || '';
-const apiWeatherURL = `${API_BASE_URL}/weather?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
-const apiForecastURL = `${API_BASE_URL}/forecast?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
+// Define global variables
+let LAT = '';
+let LON = '';
+let APIKEY = '';
+let API_BASE_URL = '';
+let apiWeatherURL = '';
+let apiForecastURL = '';
+// Initialize configuration
+function initConfig() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield fetch('/api/config');
+            if (response.ok) {
+                const config = yield response.json();
+                LAT = config.LAT;
+                LON = config.LON;
+                APIKEY = config.APIKEY;
+                API_BASE_URL = config.API_BASE_URL;
+                apiWeatherURL = `${API_BASE_URL}/weather?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
+                apiForecastURL = `${API_BASE_URL}/forecast?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
+            }
+            else {
+                throw new Error('Failed to load configuration');
+            }
+        }
+        catch (error) {
+            console.error('Error loading configuration:', error);
+        }
+    });
+}
 // Function to display current weather
 function displayWeather(data) {
     const iconsrc = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
@@ -53,11 +75,12 @@ function displayForecast(forecasts) {
         .map((x) => x.weather[0].description)[0]);
     const weatherElt = document.querySelector(".forecast");
     if (weatherElt) {
+        weatherElt.innerHTML = ''; // Clear existing forecast
         for (let i = 0; i < 3; i++) {
             let newSection = document.createElement("div");
             newSection.innerHTML = `<h3>${dates[i]}</h3> 
-        <p>${forecastDescription[i]}</p>
-        <img id="forecast-icon" src="https://openweathermap.org/img/wn/${forecastIcon[i]}.png" alt="icon image depicting forecast" >`;
+        <p>${forecastDescription[i] || 'No data available'}</p>
+        <img id="forecast-icon" src="https://openweathermap.org/img/wn/${forecastIcon[i] || '01d'}.png" alt="icon image depicting forecast" >`;
             weatherElt.append(newSection);
         }
     }
@@ -102,6 +125,8 @@ function fetchWeather() {
     });
 }
 export function getTheForecast() {
-    fetchForecast();
-    fetchWeather();
+    return __awaiter(this, void 0, void 0, function* () {
+        yield initConfig();
+        yield Promise.all([fetchWeather(), fetchForecast()]);
+    });
 }
