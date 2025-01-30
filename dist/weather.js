@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-// Define global variables
 let LAT;
 let LON;
 let APIKEY;
@@ -15,13 +15,12 @@ let API_BASE_URL;
 let apiWeatherURL;
 let apiForecastURL;
 const ONE_DAY = 24 * 60 * 60 * 1000;
-// **Initialize Configuration from API**
 function initConfig() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield fetch('/api/config');
             if (!response.ok) {
-                const errorText = yield response.text(); // Get error details from server
+                const errorText = yield response.text();
                 throw new Error(`Failed to load configuration: ${response.status} - ${errorText}`);
             }
             const config = yield response.json();
@@ -31,26 +30,26 @@ function initConfig() {
             API_BASE_URL = config.API_BASE_URL;
             apiWeatherURL = `${API_BASE_URL}/weather?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
             apiForecastURL = `${API_BASE_URL}/forecast?lat=${LAT}&lon=${LON}&appid=${APIKEY}&units=imperial`;
-            yield Promise.all([fetchWeather(), fetchForecast()]); // Fetch after config
+            // Fetch both weather and forecast concurrently *after* config is loaded
+            yield Promise.all([fetchWeather(), fetchForecast()]);
         }
         catch (error) {
             console.error('Error loading configuration:', error);
-            // Handle the error gracefully, maybe display a message to the user
-            const errorElement = document.getElementById('error-message'); // Example error display
+            const errorElement = document.getElementById('error-message');
             if (errorElement) {
                 errorElement.textContent = "Error loading weather data. Please try again later.";
             }
         }
     });
 }
-// **Fetch current weather data**
 function fetchWeather() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield fetch(apiWeatherURL);
-            if (!response.ok)
+            if (!response.ok) {
                 throw new Error(yield response.text());
-            const data = yield response.json();
+            }
+            const data = yield response.json(); // Type the response
             displayWeather(data);
         }
         catch (error) {
@@ -58,13 +57,13 @@ function fetchWeather() {
         }
     });
 }
-// **Fetch forecast data**
 function fetchForecast() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield fetch(apiForecastURL);
-            if (!response.ok)
+            if (!response.ok) {
                 throw new Error(yield response.text());
+            }
             const data = yield response.json();
             displayForecast(data.list);
         }
@@ -73,7 +72,6 @@ function fetchForecast() {
         }
     });
 }
-// **Display current weather**
 function displayWeather(data) {
     const iconsrc = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
     const desc = data.weather[0].description;
@@ -93,7 +91,6 @@ function displayWeather(data) {
         console.error("One or more weather elements not found in the DOM.");
     }
 }
-// **Display 3-day forecast**
 function displayForecast(forecasts) {
     let dates = [];
     let mydate = new Date();
@@ -110,7 +107,7 @@ function displayForecast(forecasts) {
         .map(x => x.weather[0].description)[0]);
     const weatherElt = document.querySelector(".forecast");
     if (weatherElt) {
-        weatherElt.innerHTML = ''; // Clear existing forecast
+        weatherElt.innerHTML = '';
         for (let i = 0; i < 3; i++) {
             let newSection = document.createElement("div");
             newSection.innerHTML = `
@@ -125,9 +122,7 @@ function displayForecast(forecasts) {
         console.error("Forecast container element not found in the DOM.");
     }
 }
-export function getTheForecast() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield initConfig(); // Call initConfig to start the process
-    });
-}
-document.addEventListener('DOMContentLoaded', getTheForecast);
+// Initialize and fetch data when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
+    yield initConfig(); // Call initConfig here
+}));
