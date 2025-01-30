@@ -4,8 +4,7 @@
 This TypeScript project fetches a 3-day weather forecast for a specified location using the OpenWeatherMap API.
 
 ### Demo
-[Software Demo Video](https://youtu.be/xjS9OY0UHfY)
-
+[Software Demo Video](https://www.youtube.com/watch?v=IhvRmVNLuqM)
 
 ### Setup
 
