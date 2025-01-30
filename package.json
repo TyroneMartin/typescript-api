@@ -2,10 +2,10 @@
   "name": "typescript-api",
   "version": "1.0.0",
   "description": "This project fetches a 3-day weather forecast for a specified location using the WeatherAPI service.",
-  "main": "server.cjs",
-  "type": "module",
+  "main": "server.js",
+  "type": "commonjs",
   "scripts": {
-    "start": "npm run build && node server.cjs",
+    "start": "npm run build && node server.js",
     "dev": "ts-node-dev --respawn src/index.ts",
     "build": "tsc"
   },

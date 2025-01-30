@@ -15,6 +15,7 @@ app.get('/weather', (req, res) => {
   });
 });
 
+
 app.get('/forecast', (req, res) => {
   require('./dist/forecast.js').getTheForecast().then((data) => {
     res.json(data);
