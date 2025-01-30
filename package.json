@@ -7,8 +7,7 @@
   "scripts": {
     "start": "npm run build && node server.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "build": "tsc",
-    "vercel-build": "npm run build && npm install --omit=dev && echo 'Building for Vercel complete'"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "Tyrone Martin",
